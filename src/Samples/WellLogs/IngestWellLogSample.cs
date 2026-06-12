@@ -16,9 +16,10 @@ namespace Osdu.Samples.WellLogs;
 ///         deserialized into the strongly-typed <see cref="V15.Data"/> schema
 ///         model — so it is validated and editable as POCOs.</item>
 ///   <item>The record is assembled with the typed <see cref="Record"/>,
-///         <see cref="StorageAcl"/> and <see cref="Legal"/> models (ACL/Legal and
-///         the parent WellboreID come from <c>Demo</c> config), then bridged to the
-///         API via <c>Data.ToUntypedNode()</c> and posted with
+///         <see cref="StorageAcl"/> and <see cref="Legal"/> models (ACL/Legal come
+///         from <c>Demo</c> config; the parent WellboreID is optional — taken from the
+///         data file or, if absent, the optional <c>Demo:WellboreId</c>), then bridged
+///         to the API via <c>Data.ToUntypedNode()</c> and posted with
 ///         <c>WellboreDdms.Ddms.V3.Welllogs.PostAsync</c>.</item>
 ///   <item>The Parquet file from <c>Demo:ParquetFile</c> is streamed to the new
 ///         record as <c>application/x-parquet</c> via the client's
@@ -35,7 +36,6 @@ public sealed class IngestWellLogSample : ISample
 
     public async Task RunAsync(SampleContext ctx, CancellationToken ct)
     {
-        var wellboreId = ctx.Require(ctx.Demo.WellboreId, nameof(ctx.Demo.WellboreId));
         var legalTag = ctx.Require(ctx.Demo.LegalTag, nameof(ctx.Demo.LegalTag));
         var aclOwner = ctx.Require(ctx.Demo.AclOwner, nameof(ctx.Demo.AclOwner));
         var aclViewer = ctx.Require(ctx.Demo.AclViewer, nameof(ctx.Demo.AclViewer));
@@ -52,9 +52,12 @@ public sealed class IngestWellLogSample : ISample
         var data = JsonSerializer.Deserialize<V15.Data>(json)
                    ?? throw new InvalidOperationException($"Could not parse WellLog data from '{dataFile}'.");
 
-        // The bundled example omits the parent wellbore; supply it from config.
-        if (string.IsNullOrWhiteSpace(data.WellboreID))
-            data.WellboreID = wellboreId;
+        // WellboreID is optional in the WellLog schema. Use the data file's value
+        // if present, else fall back to the (optional) Demo:WellboreId config.
+        if (string.IsNullOrWhiteSpace(data.WellboreID) && !string.IsNullOrWhiteSpace(ctx.Demo.WellboreId))
+            data.WellboreID = ctx.Demo.WellboreId;
+
+        Console.WriteLine($"  Wellbore: {(string.IsNullOrWhiteSpace(data.WellboreID) ? "(none — parentless)" : data.WellboreID)}");
 
         var record = new Record
         {
