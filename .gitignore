@@ -1,0 +1,15 @@
+# .NET build artifacts
+bin/
+obj/
+*.user
+
+# Local config & secrets
+appsettings.local.json
+.msal_token_cache.bin
+.osdu/
+
+# IDE
+.vs/
+.idea/
+*.suo
+.DS_Store

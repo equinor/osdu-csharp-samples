@@ -1,0 +1,20 @@
+{
+  "Name": "osdu-csharp-samples ingested log",
+  "TopMeasuredDepth": 1000.0,
+  "BottomMeasuredDepth": 1002.0,
+  "IsRegular": true,
+  "Curves": [
+    {
+      "CurveID": "DEPTH",
+      "Mnemonic": "DEPTH",
+      "CurveDescription": "Measured Depth",
+      "NumberOfColumns": 1
+    },
+    {
+      "CurveID": "GR",
+      "Mnemonic": "GR",
+      "CurveDescription": "Gamma Ray",
+      "NumberOfColumns": 1
+    }
+  ]
+}
