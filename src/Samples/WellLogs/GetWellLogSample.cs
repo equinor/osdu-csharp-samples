@@ -14,7 +14,7 @@ public sealed class GetWellLogSample : ISample
 
     public async Task RunAsync(SampleContext ctx, CancellationToken ct)
     {
-        var id = ctx.Require(ctx.Demo.WellLogId, nameof(ctx.Demo.WellLogId));
+        var id = ctx.ResolveWellLogId();
         SampleContext.Header($"Get WellLog — {id}");
 
         var record = await ctx.Client.WellboreDdms.Ddms.V3.Welllogs[id].GetAsync(cancellationToken: ct);

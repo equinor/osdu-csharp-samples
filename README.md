@@ -40,7 +40,18 @@ osdu-samples search-welllogs get-welllog   # run several
 ```
 
 Flags: `--write` enables the opt-in write samples (or set `Demo:AllowWrites=true`);
+`--id <welllog-id>` operates on a specific WellLog id, overriding `Demo:WellLogId`;
 `--verbose` turns on Debug-level SDK request/response logging.
+
+`--id` makes the ingest → read-back demo flow config-free — paste the id printed by
+`ingest-welllog` straight into the read commands:
+
+```sh
+osdu-samples ingest-welllog --write
+# → Created WellLog: dev:work-product-component--WellLog:<new-id>
+osdu-samples get-welllog read-bulk-data bulk-statistics --id dev:work-product-component--WellLog:<new-id>
+osdu-samples delete-welllog --id dev:work-product-component--WellLog:<new-id> --write   # clean up
+```
 
 ## Configuration
 
@@ -71,7 +82,7 @@ Uses standard .NET configuration. Provide values in `appsettings.local.json`
 
 Authentication uses interactive MSAL by default (browser on first run, then
 silent renewal from cache). Read samples need only the `Osdu` section plus
-`Demo:WellLogId`; write samples additionally need `WellboreId`, `LegalTag`,
+`Demo:WellLogId` (or `--id`); write samples additionally need `WellboreId`, `LegalTag`,
 `AclOwner`, `AclViewer`.
 
 `ingest-welllog` reads a typed WellLog `data` JSON file and a Parquet file. Point

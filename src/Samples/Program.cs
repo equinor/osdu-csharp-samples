@@ -4,13 +4,15 @@ using Osdu.Samples;
 //   osdu-samples                 run the read-only samples
 //   osdu-samples list            list every available sample
 //   osdu-samples <name> [<name>] run specific samples by name
-//   flags: --write   enable opt-in write samples (also Demo:AllowWrites)
-//          --verbose Debug-level SDK logging
+//   flags: --write     enable opt-in write samples (also Demo:AllowWrites)
+//          --id <id>   operate on this WellLog id (overrides Demo:WellLogId)
+//          --verbose   Debug-level SDK logging
 // ---------------------------------------------------------------------------------
 
 var argList = args.ToList();
 var verbose = argList.Remove("--verbose") | argList.Remove("-v");
 var writeFlag = argList.Remove("--write") | argList.Remove("-w");
+var wellLogId = TakeOption(argList, "--id", "-i");
 
 if (argList is ["list"])
 {
@@ -26,7 +28,7 @@ if (argList is ["list"])
 
 using var host = new SampleHost(verbose);
 var writesEnabled = writeFlag || host.Demo.AllowWrites;
-var context = new SampleContext(host.Client, host.Demo, writesEnabled);
+var context = new SampleContext(host.Client, host.Demo, writesEnabled) { ActiveWellLogId = wellLogId };
 
 // Resolve which samples to run.
 List<ISample> toRun;
@@ -80,3 +82,19 @@ foreach (var sample in toRun)
 }
 
 return failures == 0 ? 0 : 1;
+
+// Removes "--id <value>" (or "-i <value>") from the argument list and returns the
+// value, so it isn't treated as a sample name. Returns null when not supplied.
+static string? TakeOption(List<string> args, params string[] names)
+{
+    for (var i = 0; i < args.Count; i++)
+    {
+        if (!names.Contains(args[i])) continue;
+        if (i + 1 >= args.Count)
+            throw new ArgumentException($"Option '{args[i]}' requires a value.");
+        var value = args[i + 1];
+        args.RemoveRange(i, 2);
+        return value;
+    }
+    return null;
+}

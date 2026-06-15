@@ -85,8 +85,9 @@ public sealed class IngestWellLogSample : ISample
         await ctx.Client.WellboreDdmsBulk.WriteParquetAsync(id, parquet, cancellationToken: ct);
 
         Console.WriteLine($"  Wrote {new FileInfo(parquetFile).Length:N0} bytes of Parquet bulk data.");
-        Console.WriteLine("\n  Tip: set Demo:WellLogId to the created id to run the read samples, " +
-                          "then 'delete-welllog' to clean up.");
+        Console.WriteLine("\n  Tip: read it back by passing the id above, e.g.\n" +
+                          $"       dotnet run --project src/Samples -- get-welllog read-bulk-data bulk-statistics --id {id}\n" +
+                          $"       and clean up with: ... delete-welllog --id {id} --write");
     }
 
     /// <summary>

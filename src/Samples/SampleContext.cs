@@ -14,6 +14,23 @@ public sealed class SampleContext(OsduClient client, DemoOptions demo, bool writ
     /// <summary>True if write samples may mutate data this run.</summary>
     public bool WritesEnabled { get; } = writesEnabled;
 
+    /// <summary>
+    /// A WellLog id supplied for this run via the <c>--id</c> CLI flag. When set,
+    /// read samples use it in place of <c>Demo:WellLogId</c> — handy for pasting the
+    /// id printed by <c>ingest-welllog</c> / <c>create-welllog</c> straight into a
+    /// read-back command, with no config edit.
+    /// </summary>
+    public string? ActiveWellLogId { get; set; }
+
+    /// <summary>
+    /// Resolves the WellLog id to operate on: the one passed via <c>--id</c> this run
+    /// if present, otherwise the configured <c>Demo:WellLogId</c>.
+    /// </summary>
+    public string ResolveWellLogId() =>
+        string.IsNullOrWhiteSpace(ActiveWellLogId)
+            ? Require(Demo.WellLogId, nameof(Demo.WellLogId))
+            : ActiveWellLogId;
+
     /// <summary>Writes a section header to the console.</summary>
     public static void Header(string title)
     {

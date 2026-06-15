@@ -9,7 +9,7 @@ public sealed class DeleteWellLogSample : ISample
 
     public async Task RunAsync(SampleContext ctx, CancellationToken ct)
     {
-        var id = ctx.Require(ctx.Demo.WellLogId, nameof(ctx.Demo.WellLogId));
+        var id = ctx.ResolveWellLogId();
         SampleContext.Header($"Delete WellLog — {id}");
 
         await ctx.Client.WellboreDdms.Ddms.V3.Welllogs[id].DeleteAsync(cancellationToken: ct);

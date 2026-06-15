@@ -27,7 +27,7 @@ public sealed class WriteBulkDataSample : ISample
 
     public async Task RunAsync(SampleContext ctx, CancellationToken ct)
     {
-        var id = ctx.Require(ctx.Demo.WellLogId, nameof(ctx.Demo.WellLogId));
+        var id = ctx.ResolveWellLogId();
         SampleContext.Header($"Write bulk data (JSON) — {id}");
 
         // split orient: MD is the reference/index curve, GR a measurement curve.

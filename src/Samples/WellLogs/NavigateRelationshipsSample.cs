@@ -16,7 +16,7 @@ public sealed class NavigateRelationshipsSample : ISample
 
     public async Task RunAsync(SampleContext ctx, CancellationToken ct)
     {
-        var wellLogId = ctx.Require(ctx.Demo.WellLogId, nameof(ctx.Demo.WellLogId));
+        var wellLogId = ctx.ResolveWellLogId();
         var ddms = ctx.Client.WellboreDdms.Ddms.V3;
 
         SampleContext.Header($"WellLog — {wellLogId}");
