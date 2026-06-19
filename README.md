@@ -108,3 +108,17 @@ dotnet nuget add source https://nuget.pkg.github.com/equinor/index.json \
 
 > This project targets **`Equinor.OsduCsharpClient` 1.1.0** (which adds Wellbore
 > DDMS Parquet bulk-data support) and **`Equinor.Osdu.Schemas` 0.2.1**.
+
+## Contributing
+
+Contributions are welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md) for
+development setup, the pull-request process, and commit conventions.
+
+## Security
+
+To report a security vulnerability, follow the process in
+[`SECURITY.md`](SECURITY.md). Do not open a public issue.
+
+## License
+
+Licensed under the [Apache License 2.0](LICENSE).
