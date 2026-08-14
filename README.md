@@ -8,12 +8,43 @@ documentation and run on its own.
 [client]: https://github.com/equinor/osdu-csharp-client
 [schemas]: https://github.com/equinor/osdu-csharp-schemas
 
+## How the two libraries fit together
+
+The packages are complementary and designed to be used side by side:
+
+- **`Equinor.OsduCsharpClient`** is a generated client for the OSDU APIs. It gives
+  you strongly-typed *service* calls and record *envelopes* (`Record`, `StorageAcl`,
+  `Legal`, search requests, …) but treats each record's domain `data` block as a
+  free-form `UntypedNode`, because a single client cannot hard-code every OSDU kind.
+- **`Equinor.Osdu.Schemas`** supplies strongly-typed POCOs for that `data` block —
+  one per OSDU kind and version (e.g. `WellLog:1.5.0`, `Wellbore:1.5.1`).
+
+They meet at a small JSON bridge exposed by the client, so you get end-to-end typing
+with no hand-written DTOs or stringly-typed dictionary access:
+
+```csharp
+using V15 = Osdu.Schemas.WorkProductComponent.WellLog.V1_5_0;
+
+// Read: envelope from the client, data as a typed schema POCO.
+var record = await client.WellboreDdms.Ddms.V3.Welllogs[id].GetAsync();
+V15.Data data = record.Data.Deserialize<V15.Data>();   // UntypedNode → POCO
+Console.WriteLine(data.Name);                           // typed property, not data["name"]
+
+// Write: author the data as a POCO, bridge back to the envelope.
+record.Data = data.ToUntypedNode();                     // POCO → UntypedNode
+```
+
+The same `Deserialize<T>()` bridge works anywhere the client hands back a `data`
+block — including Search hits (see `search-welllogs`). Bulk curve values (`/data`)
+are the exception: they are tabular, not a schema kind, so they stay untyped JSON or
+Parquet.
+
 ## Samples
 
 | Name | Description | Writes? |
 |---|---|---|
 | `service-info` | Print Wellbore DDMS service info (`/about`). | |
-| `search-welllogs` | Search for WellLog records by kind. | |
+| `search-welllogs` | Search for WellLogs and read each hit's `data` as a typed schema model. | |
 | `get-welllog` | Get a WellLog by id and read its `data` with typed schema models. | |
 | `welllog-versions` | List all stored versions of a WellLog. | |
 | `navigate` | Follow WellLog → Wellbore → Well via data references. | |
