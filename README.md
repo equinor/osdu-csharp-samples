@@ -1,12 +1,12 @@
 # OSDU C# Samples
 
 Runnable, focused examples of using the [`Equinor.OsduCsharpClient`][client] and
-[`Equinor.Osdu.Schemas`][schemas] packages against OSDU — centred on **Wellbore
+[`Equinor.Osdu.Models`][models] packages against OSDU — centred on **Wellbore
 DDMS well logs**. Each sample is a small, self-contained class you can read as
 documentation and run on its own.
 
 [client]: https://github.com/equinor/osdu-csharp-client
-[schemas]: https://github.com/equinor/osdu-csharp-schemas
+[models]: https://github.com/equinor/osdu-csharp-models
 
 ## How the two libraries fit together
 
@@ -16,14 +16,15 @@ The packages are complementary and designed to be used side by side:
   you strongly-typed *service* calls and record *envelopes* (`Record`, `StorageAcl`,
   `Legal`, search requests, …) but treats each record's domain `data` block as a
   free-form `UntypedNode`, because a single client cannot hard-code every OSDU kind.
-- **`Equinor.Osdu.Schemas`** supplies strongly-typed POCOs for that `data` block —
+- **`Equinor.Osdu.Models`** supplies strongly-typed POCOs for that `data` block —
   one per OSDU kind and version (e.g. `WellLog:1.5.0`, `Wellbore:1.5.1`).
 
 They meet at a small JSON bridge exposed by the client, so you get end-to-end typing
 with no hand-written DTOs or stringly-typed dictionary access:
 
 ```csharp
-using V15 = Osdu.Schemas.WorkProductComponent.WellLog.V1_5_0;
+using Equinor.OsduCsharpClient.Facade; // Deserialize<T>() / ToUntypedNode()
+using V15 = Osdu.Models.WorkProductComponent.WellLog.V1_5_0;
 
 // Read: envelope from the client, data as a typed schema POCO.
 var record = await client.WellboreDdms.Ddms.V3.Welllogs[id].GetAsync();
@@ -62,6 +63,16 @@ typed `UntypedNode`); the `ingest-welllog` sample uses the binary Parquet path v
 the client's `WellboreDdmsBulk` helper, which is more efficient for large data.
 
 ## Running
+
+With the .NET 10 SDK and [NuGet access](#nuget-access) configured:
+
+```sh
+dotnet build
+dotnet run --project src/Samples -- list
+dotnet run --project src/Samples -- get-welllog
+```
+
+The executable accepts the same sample names and flags:
 
 ```sh
 osdu-samples                 # run all read-only samples
@@ -111,8 +122,22 @@ Uses standard .NET configuration. Provide values in `appsettings.local.json`
 }
 ```
 
-Authentication uses interactive MSAL by default (browser on first run, then
-silent renewal from cache). Read samples need only the `Osdu` section plus
+These samples use the optional **`Equinor.OsduCsharpClient.Msal`** package for
+interactive authentication (browser on first run, then silent renewal from cache).
+The core client no longer supplies a default token provider, so `SampleHost`
+passes one explicitly:
+
+```csharp
+using Equinor.OsduCsharpClient.Facade;
+using Equinor.OsduCsharpClient.Msal;
+
+var config = OsduConfig.FromConfiguration(configuration);
+var tokenProvider = new MsalInteractiveTokenProvider(config, loggerFactory: loggerFactory);
+using var client = new OsduClient(config, tokenProvider, loggerFactory: loggerFactory);
+```
+
+`Authority`, `ClientId`, and `Scopes` remain required for this MSAL provider.
+Read samples need only the `Osdu` section plus
 `Demo:WellLogId` (or `--id`); write samples additionally need `WellboreId`, `LegalTag`,
 `AclOwner`, `AclViewer`.
 
@@ -126,7 +151,8 @@ instance. Parquet columns must match the curve mnemonics declared in the `data`.
 
 ## NuGet access
 
-`Equinor.OsduCsharpClient` and `Equinor.Osdu.Schemas` are published to GitHub
+`Equinor.OsduCsharpClient`, `Equinor.OsduCsharpClient.Msal`, and
+`Equinor.Osdu.Models` are published to GitHub
 Packages. `nuget.config` declares the `equinor-github` source; add credentials
 (a PAT with `read:packages`) to your **user-level** NuGet config:
 
@@ -137,8 +163,10 @@ dotnet nuget add source https://nuget.pkg.github.com/equinor/index.json \
 
 ## Status
 
-> This project targets **`Equinor.OsduCsharpClient` 1.1.0** (which adds Wellbore
-> DDMS Parquet bulk-data support) and **`Equinor.Osdu.Schemas` 0.2.1**.
+This project targets **.NET 10**, the **2.x OSDU client** with its optional MSAL
+package, and **`Equinor.Osdu.Models` 1.x**. Exact package versions are pinned in
+[`Samples.csproj`](src/Samples/Samples.csproj). Model aliases use `Osdu.Models`,
+replacing the former `Osdu.Schemas` namespace.
 
 ## Contributing
 

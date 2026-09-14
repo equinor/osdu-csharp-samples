@@ -1,11 +1,11 @@
 using Equinor.OsduCsharpClient.Facade;
-using V15 = Osdu.Schemas.WorkProductComponent.WellLog.V1_5_0;
+using V15 = Osdu.Models.WorkProductComponent.WellLog.V1_5_0;
 
 namespace Osdu.Samples.WellLogs;
 
 /// <summary>
 /// Fetches a WellLog by id and reads its free-form <c>data</c> block as a typed
-/// model via the Equinor.Osdu.Schemas POCO + the client's JSON bridge.
+/// model via the Equinor.Osdu.Models POCO + the client's JSON bridge.
 /// </summary>
 public sealed class GetWellLogSample : ISample
 {
@@ -23,7 +23,7 @@ public sealed class GetWellLogSample : ISample
         Console.WriteLine($"  Kind : {record.Kind}");
 
         // The envelope is strongly typed; `data` is a free-form UntypedNode that
-        // the schemas package lets us deserialize into a typed WellLog.
+        // the models package lets us deserialize into a typed WellLog.
         var data = record.Data.Deserialize<V15.Data>();
         if (data is not null)
         {

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Equinor.OsduCsharpClient.Facade;
 using Equinor.OsduCsharpClient.WellboreDdms.Models;
-using V15 = Osdu.Schemas.WorkProductComponent.WellLog.V1_5_0;
+using V15 = Osdu.Models.WorkProductComponent.WellLog.V1_5_0;
 
 namespace Osdu.Samples.WellLogs;
 
@@ -10,11 +10,11 @@ namespace Osdu.Samples.WellLogs;
 /// typed WellLog <c>data</c> JSON file and a Parquet file of curve values.
 /// </summary>
 /// <remarks>
-/// Showcases the client and schema libraries working together end-to-end:
+/// Showcases the client and models libraries working together end-to-end:
 /// <list type="number">
 ///   <item>The <c>data</c> document from <c>Demo:WellLogDataFile</c> is
 ///         deserialized into the strongly-typed <see cref="V15.Data"/> schema
-///         model — so it is validated and editable as POCOs.</item>
+///         model — so it is editable as POCOs (not full schema validation).</item>
 ///   <item>The record is assembled with the typed <see cref="Record"/>,
 ///         <see cref="StorageAcl"/> and <see cref="Legal"/> models (ACL/Legal come
 ///         from <c>Demo</c> config; the parent WellboreID is optional — taken from the
