@@ -1,6 +1,6 @@
 using Equinor.OsduCsharpClient.Facade;
 using Equinor.OsduCsharpClient.WellboreDdms.Models;
-using V15 = Osdu.Schemas.WorkProductComponent.WellLog.V1_5_0;
+using V15 = Osdu.Models.WorkProductComponent.WellLog.V1_5_0;
 
 namespace Osdu.Samples.WellLogs;
 

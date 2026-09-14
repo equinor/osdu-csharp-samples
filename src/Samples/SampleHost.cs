@@ -1,4 +1,5 @@
 using Equinor.OsduCsharpClient.Facade;
+using Equinor.OsduCsharpClient.Msal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -33,7 +34,8 @@ public sealed class SampleHost : IDisposable
         });
 
         var config = OsduConfig.FromConfiguration(configuration);
-        Client = new OsduClient(config, loggerFactory: _loggerFactory);
+        var tokenProvider = new MsalInteractiveTokenProvider(config, loggerFactory: _loggerFactory);
+        Client = new OsduClient(config, tokenProvider, loggerFactory: _loggerFactory);
     }
 
     public void Dispose()
